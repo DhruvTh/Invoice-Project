@@ -88,7 +88,7 @@ def send_data_supabase(extracted_data : dict) -> None:
     # Prepare the payload
     payload = {
         "reference_number": extracted_data["output"]["invoice_number"],
-        "date": extracted_data["output"]["invoice_date"],
+        "invoice_date": extracted_data["output"]["invoice_date"],
         "customer_name": extracted_data["output"]["customer_details"]["name"],
         "customer_address": extracted_data["output"]["customer_details"]["address"],
         "customer_tax_number": extracted_data["output"]["customer_details"]["tax_registration_number"],
