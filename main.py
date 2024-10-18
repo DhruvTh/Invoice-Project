@@ -49,7 +49,7 @@ def extract_data(input_data: LLMAPIInput):
         invoice_url=input_data.invoice_url
     )
 
-    send_data_supabase(extracted_data=output.model_dump())
+    # send_data_supabase(extracted_data=output.model_dump())
     return JSONResponse(output.model_dump())
 
 
