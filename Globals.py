@@ -72,7 +72,7 @@ def send_email(receiver_email, subject, body, sender_email, sender_password ):
 def send_data_supabase(extracted_data : dict) -> None:
 
     PROJECT_ID = "yxaogvuhrlmduxjzcyjr"
-    API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4YW9ndnVocmxtZHV4anpjeWpyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyOTA5ODI0OCwiZXhwIjoyMDQ0Njc0MjQ4fQ.Wn3ggV1jT5ulQLat05dheQLzs6vCEiQ5RD3PiPdoFpU"
+    API_KEY = os.environ["SUPABASE_API_KEY"]
 
     # API endpoint
     url = f"https://{PROJECT_ID}.supabase.co/rest/v1/invoices"

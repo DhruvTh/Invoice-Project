@@ -1,0 +1,83 @@
+options:
+  substitutionOption: ALLOW_LOOSE
+  logging: CLOUD_LOGGING_ONLY
+
+# Define substitution variables
+substitutions:
+  _SERVICE_NAME: invoice-project
+  _DEPLOY_REGION: us-central1
+  _AR_HOSTNAME: us-central1-docker.pkg.dev
+  _PROD_SERVICE_NAME: invoice-project
+  _DEV_SERVICE_NAME: invoice-project
+
+steps:
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [[ "$BRANCH_NAME" == "main" ]]; then
+          echo "Using main alias"
+          echo "main" > /workspace/secret_alias.txt
+        else
+          echo "Using dev alias"
+          echo "dev" > /workspace/secret_alias.txt
+        fi
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        export _SECRET_ALIAS=$(cat /workspace/secret_alias.txt)
+        echo "Secret alias: $$_SECRET_ALIAS"
+
+        gcloud secrets versions access $$_SECRET_ALIAS --secret="GEMINI_API_KEY" > /workspace/GEMINI_API_KEY.txt
+        gcloud secrets versions access $$_SECRET_ALIAS --secret="CLAUDEAI_API_KEY" > /workspace/CLAUDEAI_API_KEY.txt
+        gcloud secrets versions access $$_SECRET_ALIAS --secret="OPENAI_API_KEY" > /workspace/OPENAI_API_KEY.txt
+        gcloud secrets versions access $$_SECRET_ALIAS --secret="SUPABASE_API_KEY" > /workspace/SUPABASE_API_KEY.txt
+
+
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker build \
+          -t $_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA \
+          --build-arg GEMINI_API_KEY="$(cat /workspace/GEMINI_API_KEY.txt)" \
+          --build-arg CLAUDEAI_API_KEY="$(cat /workspace/CLAUDEAI_API_KEY.txt)" \
+          --build-arg OPENAI_API_KEY="$(cat /workspace/OPENAI_API_KEY.txt)" \
+          --build-arg SUPABASE_API_KEY="$(cat /workspace/SUPABASE_API_KEY.txt)" \
+          .
+  
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - >-
+        $_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
+    id: Push
+  
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [[ "$BRANCH_NAME" == "main" ]]; then
+          export DEPLOY_SERVICE_NAME=$_PROD_SERVICE_NAME
+        else
+          export DEPLOY_SERVICE_NAME=$_DEV_SERVICE_NAME
+        fi
+        
+        gcloud run services update $$DEPLOY_SERVICE_NAME \
+          --platform=managed \
+          --image=$_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA \
+          --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID \
+          --region=$_DEPLOY_REGION \
+          --timeout 3600s \
+          --quiet
+    id: Deploy
+
+images:
+  - >-
+    $_AR_HOSTNAME/$PROJECT_ID/cloud-run-source-deploy/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
