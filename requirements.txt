@@ -27,3 +27,4 @@ google-cloud-resource-manager
 packaging 
 shapely 
 google-generativeai
+docx2pdf
