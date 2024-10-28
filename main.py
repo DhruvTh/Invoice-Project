@@ -53,6 +53,32 @@ def extract_data(input_data: LLMAPIInput):
     return JSONResponse(output.model_dump())
 
 
+@app.post("/identify_invoice")
+def extract_data(input_data: LLMAPIInput):
+    st = time.time()
+    llm_input = LLMInput(
+        llm = input_data.llm,
+        llm_model=input_data.llm_model,
+        history=[History(
+            role="user",
+            content=Content(
+                text="Please extract the invoice type. While extracting information, You must not make up any information by yourself. If you think that, given details are missing, you could mention false for any extracting parameter.",
+                image_data=[ImageData(url=img) for img in url_to_pil_image(input_data.invoice_url)]
+            )
+        )],
+        function_call_list=[copy.deepcopy(invoice_type_schema)]
+    )
+    response, cost = llm_list[input_data.llm].generate_response(llm_input)
+
+    output = TaskResponse(
+        output=response,
+        token_cost = cost.token_cost,
+        time_required=time.time()-st,
+        invoice_url=input_data.invoice_url
+    )
+
+    # send_data_supabase(extracted_data=output.model_dump())
+    return JSONResponse(output.model_dump())
 
 if __name__ == "__main__":
     uvicorn.run(

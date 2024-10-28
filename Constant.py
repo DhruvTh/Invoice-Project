@@ -337,6 +337,10 @@ invoice_extraction_schema = {
             "unit_total": {
               "type": "number",
               "description": "Total cost for this item or unit. If given details is not in English, please translate the details while extracting "
+            },
+            "currency":{
+                "type": "string",
+                "description": "Details of 3 digit Currency Unit such as INR, USD, EUR."
             }
           },
           "required": ["serial_number", "name_and_description", "time_period", "per_month_with_fuel", "tax_details", "unit_total"]
@@ -378,6 +382,31 @@ invoice_extraction_schema = {
 }
 }
 
+invoice_type_schema = {
+  "type": "function",
+  "function": {
+    "name": "identify_invoice_type",
+    "description": "Identify the type of invoice and return true or false for each type.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "is_proforma_invoice": {
+          "type": "boolean",
+          "description": "True if the invoice is a Proforma invoice, otherwise false."
+        },
+        "is_interim_invoice": {
+          "type": "boolean",
+          "description": "True if the invoice is an Interim invoice, otherwise false."
+        },
+        "is_normal_invoice": {
+          "type": "boolean",
+          "description": "True if the invoice is a normal invoice, otherwise false."
+        }
+      },
+      "required": ["is_proforma_invoice", "is_interim_invoice", "is_final_invoice"]
+    }
+  }
+}
 
 #Todo : for currently add the document type, later on try to check if we could check the invoice type, Based on the invoice type we need to only extract data for invoice, not for proforma
 #Todo : add examples in function calling whenver possible. For example, add examples for invoice id.
