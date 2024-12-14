@@ -408,8 +408,133 @@ invoice_type_schema = {
   }
 }
 
+purchase_order_extraction_schema = {
+  "type": "function",
+  "function": {
+    "name": "extract_purchase_order_data",
+    "description": "Extracts detailed information from a purchase order. While extracting information, if it is not in English, you must make sure that you translate the details in English.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "PO_number": {
+          "type": "string",
+          "description": "The unique identifier for the purchase order. If given details are not in English, please translate the details while extracting."
+        },
+        "PO_Date": {
+          "type": "string",
+          "description": "The date when the purchase order was issued, in YYYY-MM-DD format. If given details are not in English, please translate the details while extracting."
+        },
+        "Vendor_name": {
+          "type": "string",
+          "description": "The name of the vendor or supplier. If given details are not in English, please translate the details while extracting."
+        },
+        "Vendor_Address": {
+          "type": "string",
+          "description": "The address of the vendor or supplier. If given details are not in English, please translate the details while extracting."
+        },
+        "Vendor_Contact": {
+          "type": "string",
+          "description": "The contact information of the vendor, e.g., phone or email. If given details are not in English, please translate the details while extracting."
+        },
+        "SKU_Code": {
+          "type": "string",
+          "description": "The stock-keeping unit (SKU) code of the item. If given details are not in English, please translate the details while extracting."
+        },
+        "SKU_Desc": {
+          "type": "string",
+          "description": "A description of the SKU or item. If given details are not in English, please translate the details while extracting."
+        },
+        "Quantity": {
+          "type": "number",
+          "description": "The quantity of items being ordered. If given details are not in English, please translate the details while extracting."
+        },
+        "price_per_pack": {
+          "type": "number",
+          "description": "The price per pack of the SKU. If given details are not in English, please translate the details while extracting."
+        },
+        "Currency_Code": {
+          "type": "string",
+          "description": "The currency code in which the purchase order is made (e.g., USD, EUR). If given details are not in English, please translate the details while extracting."
+        },
+        "Price_AED_per_L_or_Kg": {
+          "type": "number",
+          "description": "The number of pieces per liter or kilogram for the item. If given details are not in English, please translate the details while extracting."
+        },
+        "Price_Incl_VAT_AED_per_pack": {
+          "type": "boolean",
+          "description": "Indicates whether the price includes VAT (true) or not (false). If given details are not in English, please translate the details while extracting."
+        },
+        "VAT_percent": {
+          "type": "number",
+          "description": "The tax percentage applicable to the purchase order. If given details are not in English, please translate the details while extracting."
+        },
+        "AuthorizedBy": {
+          "type": "string",
+          "description": "The name or identifier of the person who authorized the purchase order. If given details are not in English, please translate the details while extracting."
+        },
+        "Special_Instructions_Comments": {
+          "type": "string",
+          "description": "Any special instructions or notes related to the purchase order. If given details are not in English, please translate the details while extracting."
+        }
+      },
+      "required": [
+        "PO_number",
+        "PO_Date",
+        "Vendor_name",
+        "SKU_Code",
+        "Quantity",
+        "price_per_pack",
+        "Currency_Code"
+      ]
+    }
+  }
+}
+
+validate_incoice_conditions_schema = {
+  "type": "function",
+  "function": {
+    "name": "validate_incoice_conditions",
+    "description": "converts each of the 6 conditions into SQLITE equivalent SQL condition",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "invoice_number": {
+          "type": "string",
+          "description": "Just extract the invoice number"
+        },
+        "condition1": {
+          "type": "string",
+          "description": "We have a vendor table with columns as (VendorName,VendorType,Address,Currency,TaxDetails,BankName,BranchName,BankAccount,BankSwiftCode), a purchaseorder table with columns as (PODate,PO_number,Vendor_name,Vendor_address,Vendor_contact,SKU_Code,SKU_Desc,Quantity,price_per_pack,Currency_Code,price_per_L_or_Kg,Price_VAT_Included,Tax_percent,AuthorizedBy,Special_Instructions) and a invoice table with columns as (InvoiceNumber,InvoiceDate,CustomerName,CustomerAddress,CustomerTRN,PONumber,ItemSlNo,ItemCode,ItemDetail,ItemQuantity,ItemDueDate,ItemUnitPrice,ItemTaxRate,ItemTaxableAmount,ItemTaxAmount,ItemGrossAmountPayable,PaymentCompany,PaymentAddress,PaymentBankName,PaymentBranchName,PaymentAccount,PaymentIBAN,PaymentCurrency,CompanyTRN). Now we want to convert the given condition1 mentioned in english into a where condition based on sqlite syntax without the term where."
+        },
+        "condition2": {
+          "type": "string",
+          "description": "We have a vendor table with columns as (VendorName,VendorType,Address,Currency,TaxDetails,BankName,BranchName,BankAccount,BankSwiftCode), a purchaseorder table with columns as (PODate,PO_number,Vendor_name,Vendor_address,Vendor_contact,SKU_Code,SKU_Desc,Quantity,price_per_pack,Currency_Code,price_per_L_or_Kg,Price_VAT_Included,Tax_percent,AuthorizedBy,Special_Instructions) and a invoice table with columns as (InvoiceNumber,InvoiceDate,CustomerName,CustomerAddress,CustomerTRN,PONumber,ItemSlNo,ItemCode,ItemDetail,ItemQuantity,ItemDueDate,ItemUnitPrice,ItemTaxRate,ItemTaxableAmount,ItemTaxAmount,ItemGrossAmountPayable,PaymentCompany,PaymentAddress,PaymentBankName,PaymentBranchName,PaymentAccount,PaymentIBAN,PaymentCurrency,CompanyTRN). Now we want to convert the given condition2 mentioned in english into a where condition based on sqlite syntax without the term where."
+        },
+        "condition3": {
+          "type": "string",
+          "description": "We have a vendor table with columns as (VendorName,VendorType,Address,Currency,TaxDetails,BankName,BranchName,BankAccount,BankSwiftCode), a purchaseorder table with columns as (PODate,PO_number,Vendor_name,Vendor_address,Vendor_contact,SKU_Code,SKU_Desc,Quantity,price_per_pack,Currency_Code,price_per_L_or_Kg,Price_VAT_Included,Tax_percent,AuthorizedBy,Special_Instructions) and a invoice table with columns as (InvoiceNumber,InvoiceDate,CustomerName,CustomerAddress,CustomerTRN,PONumber,ItemSlNo,ItemCode,ItemDetail,ItemQuantity,ItemDueDate,ItemUnitPrice,ItemTaxRate,ItemTaxableAmount,ItemTaxAmount,ItemGrossAmountPayable,PaymentCompany,PaymentAddress,PaymentBankName,PaymentBranchName,PaymentAccount,PaymentIBAN,PaymentCurrency,CompanyTRN). Now we want to convert the given condition3 mentioned in english into a where condition based on sqlite syntax without the term where."
+        },
+        "condition4": {
+          "type": "string",
+          "description": "We have a vendor table with columns as (VendorName,VendorType,Address,Currency,TaxDetails,BankName,BranchName,BankAccount,BankSwiftCode), a purchaseorder table with columns as (PODate,PO_number,Vendor_name,Vendor_address,Vendor_contact,SKU_Code,SKU_Desc,Quantity,price_per_pack,Currency_Code,price_per_L_or_Kg,Price_VAT_Included,Tax_percent,AuthorizedBy,Special_Instructions) and a invoice table with columns as (InvoiceNumber,InvoiceDate,CustomerName,CustomerAddress,CustomerTRN,PONumber,ItemSlNo,ItemCode,ItemDetail,ItemQuantity,ItemDueDate,ItemUnitPrice,ItemTaxRate,ItemTaxableAmount,ItemTaxAmount,ItemGrossAmountPayable,PaymentCompany,PaymentAddress,PaymentBankName,PaymentBranchName,PaymentAccount,PaymentIBAN,PaymentCurrency,CompanyTRN). Now we want to convert the given condition4 mentioned in english into a where condition based on sqlite syntax without the term where."
+        },
+        "condition5": {
+          "type": "string",
+          "description": "We have a vendor table with columns as (VendorName,VendorType,Address,Currency,TaxDetails,BankName,BranchName,BankAccount,BankSwiftCode), a purchaseorder table with columns as (PODate,PO_number,Vendor_name,Vendor_address,Vendor_contact,SKU_Code,SKU_Desc,Quantity,price_per_pack,Currency_Code,price_per_L_or_Kg,Price_VAT_Included,Tax_percent,AuthorizedBy,Special_Instructions) and a invoice table with columns as (InvoiceNumber,InvoiceDate,CustomerName,CustomerAddress,CustomerTRN,PONumber,ItemSlNo,ItemCode,ItemDetail,ItemQuantity,ItemDueDate,ItemUnitPrice,ItemTaxRate,ItemTaxableAmount,ItemTaxAmount,ItemGrossAmountPayable,PaymentCompany,PaymentAddress,PaymentBankName,PaymentBranchName,PaymentAccount,PaymentIBAN,PaymentCurrency,CompanyTRN). Now we want to convert the given condition5 mentioned in english into a where condition based on sqlite syntax without the term where."
+        },
+        "condition6": {
+          "type": "string",
+          "description": "We have a vendor table with columns as (VendorName,VendorType,Address,Currency,TaxDetails,BankName,BranchName,BankAccount,BankSwiftCode), a purchaseorder table with columns as (PODate,PO_number,Vendor_name,Vendor_address,Vendor_contact,SKU_Code,SKU_Desc,Quantity,price_per_pack,Currency_Code,price_per_L_or_Kg,Price_VAT_Included,Tax_percent,AuthorizedBy,Special_Instructions) and a invoice table with columns as (InvoiceNumber,InvoiceDate,CustomerName,CustomerAddress,CustomerTRN,PONumber,ItemSlNo,ItemCode,ItemDetail,ItemQuantity,ItemDueDate,ItemUnitPrice,ItemTaxRate,ItemTaxableAmount,ItemTaxAmount,ItemGrossAmountPayable,PaymentCompany,PaymentAddress,PaymentBankName,PaymentBranchName,PaymentAccount,PaymentIBAN,PaymentCurrency,CompanyTRN). Now we want to convert the given condition6 mentioned in english into a where condition based on sqlite syntax without the term where."
+        }
+      }
+    }
+  }
+}
+
 #Todo : for currently add the document type, later on try to check if we could check the invoice type, Based on the invoice type we need to only extract data for invoice, not for proforma
+
 #Todo : add examples in function calling whenver possible. For example, add examples for invoice id.
 
 #Todo : Try to convert the araabic into the english while extracting the data
+
 #Todo : Try to check for the handwritten invoicess' accuracy.

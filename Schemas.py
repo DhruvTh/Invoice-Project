@@ -11,6 +11,7 @@ class ImageData(BaseModel):
 class Content(BaseModel):
     text: str
     image_data: Optional[List[ImageData]] = Field(default=None, max_length=20)
+    condition_data: Optional[List[str]] = Field(default=None, max_length=100)
 
 
 class History(BaseModel):
@@ -34,6 +35,17 @@ class LLMAPIInput(BaseModel):
     invoice_url : str
     email_id : Optional[str] = None
 
+class LLMAPIInputValidate(BaseModel):
+    llm : str = "OpenAI"
+    llm_model: str = "gpt-4o-mini"
+    invoice_number : str
+    condition1 : Optional[str] = None
+    condition2 : Optional[str] = None
+    condition3 : Optional[str] = None
+    condition4 : Optional[str] = None
+    condition5 : Optional[str] = None
+    condition6 : Optional[str] = None
+
 
 class TokenCalculation(BaseModel):
     prompt_tokens: Optional[int] = 0
@@ -50,6 +62,7 @@ class TaskResponse(BaseModel):
     token_cost: Optional[TokenCalculation] = Field(default_factory=TokenCalculation)
     time_required : Optional[float] = None
     invoice_url : Optional[str] = None
+    condition_checks : Optional[Union[str, dict, list]] = None
 
 
 class LLMModelCostConfig(BaseModel):
