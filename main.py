@@ -198,7 +198,8 @@ def extract_data(input_data: LLMAPIInputValidate):
         output=response,
         token_cost = cost.token_cost,
         time_required=time.time()-st,
-        invoice_number=input_data.invoice_number
+        invoice_number=input_data.invoice_number,
+        condition_checks=condition_checks
     )
 
     # send_data_supabase(extracted_data=output.model_dump())
