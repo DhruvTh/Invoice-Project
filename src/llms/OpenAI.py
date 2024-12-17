@@ -2,9 +2,8 @@ from typing import List
 import os, io, base64, json
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
-from openai._streaming import Stream
-from Schemas import LLMInput, History
-from llms.BaseLLM import BaseLLM
+from src.utils.Schemas import LLMInput, History
+from src.llms.BaseLLM import BaseLLM
 from PIL import Image
 
 class OpenAILLM(BaseLLM):

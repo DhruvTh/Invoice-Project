@@ -1,7 +1,7 @@
 from typing import List, Iterator
-from Schemas import LLMInput, History
-from llms.BaseLLM import BaseLLM
-from Constant import INVALID_ROLE_TYPE_ERROR_MSG
+from src.utils.Schemas import LLMInput, History
+from src.llms.BaseLLM import BaseLLM
+from src.utils.Constant import INVALID_ROLE_TYPE_ERROR_MSG
 import google.generativeai as genai
 from google.generativeai.types.content_types import FunctionDeclaration
 from google.generativeai.types.generation_types import GenerateContentResponse
