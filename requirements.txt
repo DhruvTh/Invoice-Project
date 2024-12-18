@@ -12,7 +12,7 @@ loguru
 fastapi-key-auth
 black
 python-docx
-anthropic==0.31.0
+anthropic
 Levenshtein
 av
 google-generativeai
