@@ -28,3 +28,4 @@ packaging
 shapely 
 google-generativeai
 docx2pdf
+pymongo
