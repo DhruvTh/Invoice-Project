@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from src.llms.GeminiAI import GeminiAILLM
 from src.llms.OpenAI import OpenAILLM
 from src.llms.BaseLLM import BaseLLM
@@ -6,7 +9,6 @@ from src.utils.Constant import *
 import time, uvicorn, copy, json
 from src.utils.Schemas import LLMInput, History, Content, ImageData, LLMAPIInput, TaskResponse
 from src.utils.Constant import LLMModels
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from src.utils.Globals import url_to_pil_image, sum_token_cost
@@ -16,8 +18,6 @@ from datetime import date
 
 
 app = FastAPI()
-
-load_dotenv()
 
 llm_models = LLMModels()
 
