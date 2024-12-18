@@ -40,5 +40,5 @@ class InvoiceDataDB:
     
     def get_po(self, po_number : str):
         po_collection = self.db[self.po_collection]
-        return po_collection.find_one({"poNumber" : po_number}, {"_id": 0})
+        return po_collection.find_one({"po_number" : po_number}, {"_id": 0})
  
