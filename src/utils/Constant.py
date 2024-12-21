@@ -190,24 +190,20 @@ invoice_type_schema = {
   "type": "function",
   "function": {
     "name": "identify_invoice_type",
-    "description": "Identify the type of invoice and return true or false for each type.",
+    "description": "Identify the type of invoice and return true or false for each type. If given document is not invoice then return false for both cases.",
     "parameters": {
       "type": "object",
       "properties": {
-        "is_proforma_invoice": {
+        "is_digital_invoice": {
           "type": "boolean",
-          "description": "True if the invoice is a Proforma invoice, otherwise false."
+          "description": "True if the invoice is an digital invoice, otherwise false."
         },
-        "is_interim_invoice": {
+        "is_handwritten_invoice": {
           "type": "boolean",
-          "description": "True if the invoice is an Interim invoice, otherwise false."
-        },
-        "is_normal_invoice": {
-          "type": "boolean",
-          "description": "True if the invoice is a normal invoice, otherwise false."
+          "description": "True if the invoice is a handwritten invoice, otherwise false."
         }
       },
-      "required": ["is_proforma_invoice", "is_interim_invoice", "is_final_invoice"]
+      "required": ["is_digital_invoice", "is_handwritten_invoice"]
     }
   }
 }
@@ -221,52 +217,21 @@ BASE_CONDITION_CHECK_SCHEMA = {
     "parameters": {
       "type": "object",
       "properties": {
-        "condition_1": {
-          "type": "boolean",
-          "description": "True if the invoice is raised between 2023 and 2024, otherwise false."
-        },
-        "reason_1": {
-          "type": "string",
-          "description": "Reason for the condition_1 result."
-        },
-        "condition_2": {
-          "type": "boolean",
-          "description": "True if the invoice currency is AED, otherwise false."
-        },
-        "reason_2": {
-          "type": "string",
-          "description": "Reason for the condition_2 result."
-        },
-        "condition_3": {
-          "type": "boolean",
-          "description": "True if the invoice has a 5% tax rate, otherwise false."
-        },
-        "reason_3": {
-          "type": "string",
-          "description": "Reason for the condition_3 result."
-        },
-        "condition_4": {
-          "type": "boolean",
-          "description": "True if vendor name, tax registration number, and other details match with invoice data, otherwise false."
-        },
-        "reason_4": {
-          "type": "string",
-          "description": "Reason for the condition_4 result."
-        },
-        "condition_5": {
-          "type": "boolean",
-          "description": "True if the PO number in the invoice matches the given PO data, otherwise false."
-        },
-        "reason_5": {
-          "type": "string",
-          "description": "Reason for the condition_5 result."
-        }
       },
-      "required": ["condition_1", "reason_1", "condition_2", "reason_2", "condition_3", "reason_3", "condition_4", "reason_4", "condition_5", "reason_5"]
+      "required": []
     }
   }
 }
 
+
+
+BASE_CONDITIONS = [
+    "True if the invoice is raised between 2023 and 2024, otherwise false.",
+    "True if the invoice currency is AED, otherwise false.",
+    "True if the invoice has a 5% tax rate, otherwise false.",
+    "True if vendor name, tax registration number, and other details match with invoice data, otherwise false.",
+    "True if the PO number in the invoice matches the given PO data, otherwise false."
+]
 
 VENDOR_DUMMY_DATA = [
   {

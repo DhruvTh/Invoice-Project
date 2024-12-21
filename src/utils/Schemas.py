@@ -2,7 +2,7 @@ from fastapi import Query
 from typing import Optional, List, Literal, Union, Any
 from pydantic import BaseModel, Field
 from datetime import date
-from src.utils.Constant import BASE_CONDITION_CHECK_SCHEMA
+from src.utils.Constant import BASE_CONDITIONS
 
 class ImageData(BaseModel):
     url: Any
@@ -30,13 +30,16 @@ class LLMInput(BaseModel):
     function_call_list : Optional[list]
     image_analyze : Optional[bool] = True
 
+class InvoiceType(BaseModel):
+    handwritten_invoice : Optional[bool] = False
+    digital : Optional[bool] = True
+
 class LLMAPIInput(BaseModel):
     llm : str = "ClaudeAI"
     llm_model: str = "claude-3-5-sonnet-20240620"
     invoice_url : str
-    email_id : Optional[str] = None
-    conditions : Optional[dict] = BASE_CONDITION_CHECK_SCHEMA
-
+    conditions : Optional[list[str]] = BASE_CONDITIONS
+    check_invoice_type : InvoiceType
 
 class TokenCalculation(BaseModel):
     prompt_tokens: Optional[int] = 0
@@ -52,9 +55,10 @@ class TaskResponse(BaseModel):
     output: Optional[Union[str, dict, list]] = None
     token_cost: Optional[TokenCalculation] = Field(default_factory=TokenCalculation)
     time_required : Optional[float] = None
-    invoice_url : Optional[str] = None
     final_invoice_result : Optional[bool] = None
     extracted_invoice_data : Optional[dict] = None
+    provided_conditions : Optional[list[str]] = None
+    error : Optional[str] = None
 
 
 

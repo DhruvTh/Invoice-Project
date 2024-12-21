@@ -4,41 +4,14 @@ from docx2pdf import convert
 import os, tempfile, io, requests
 import requests
 from src.utils.Schemas import TokenCalculation
+import base64
 
 def url_to_pil_image(url):
-    response = requests.get(url)
-    if response.status_code != 200:
-        raise Exception(f"Failed to download file: HTTP {response.status_code}")
+    pdf_bytes = base64.b64decode(url)
 
-    content = response.content
-    file_type = response.headers.get('Content-Type', '').lower()
+    images = convert_from_bytes(pdf_bytes)
+    return images
 
-    if 'pdf' in file_type:
-        images = convert_from_bytes(content)
-        return images
-
-    elif 'docx' in file_type or 'document' in file_type:
-        # Convert DOCX to PDF, then to image
-        with tempfile.TemporaryDirectory() as temp_dir:
-            docx_path = os.path.join(temp_dir, 'temp.docx')
-            pdf_path = os.path.join(temp_dir, 'temp.pdf')
-            
-            with open(docx_path, 'wb') as f:
-                f.write(content)
-            
-            convert(docx_path, pdf_path)
-            
-            with open(pdf_path, 'rb') as f:
-                pdf_content = f.read()
-            
-            images = convert_from_bytes(pdf_content)
-            return images
-
-    elif 'image' in file_type:
-        return [Image.open(io.BytesIO(content))]
-
-    else:
-        raise Exception(f"Unsupported file type: {file_type}")
 
 def sum_token_cost(cost_data1 : TokenCalculation, cost_data2 : TokenCalculation) -> TokenCalculation:
     return TokenCalculation(

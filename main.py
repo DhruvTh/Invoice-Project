@@ -36,75 +36,119 @@ invoice_db.connect_invoice_db()
 
 @app.post("/extract_data")
 def extract_data(input_data: LLMAPIInput):
-    st = time.time()
-    invoice_extraction_input = LLMInput(
+    try:
+        st = time.time()
+        llm_input = LLMInput(
         llm = input_data.llm,
         llm_model=input_data.llm_model,
-        history=[History(
-            role="user",
-            content=Content(
-                text="Please extract invoice details from given data. While extracting information, if invoice language is not in English, you must make sure that  you translate the details in English.  While extracting information, You must not make up any information by yourself. If you think that, given details are missing, you could mention None for any extracting parameter.",
-                image_data=[ImageData(url=img) for img in url_to_pil_image(input_data.invoice_url)]
-            )
-        )],
-        function_call_list=[copy.deepcopy(invoice_extraction_schema)]
-    )
-    invoice_extraction_response, invoice_extraction_cost = llm_list[input_data.llm].generate_response(invoice_extraction_input)
-    
-    invoice_str = json.dumps(invoice_extraction_response, indent=2)
-
-    po_data = json.dumps(invoice_db.get_po(invoice_extraction_response["po_number"]), indent=2)
-
-    vendor_data = json.dumps(invoice_db.get_vendor(invoice_extraction_response["customer_details"]["tax_registration_number"]), indent=2)
-    
-
-    condition_check_input = LLMInput(
-        llm = input_data.llm,
-        llm_model=input_data.llm_model,
-        history=[History(
-            role="user",
-            content=Content(
-                text = dedent(
-                    f"""Based on given PO data, vendor data and Invoice data, you must verify the conditions. If PO data and Vendor data are empty JSON or null, provide false for any comparision associated with vendor data and PO data. You must not assume any data by yourself. 
-                    PO data : 
-                    {po_data}
-
-                    vendor data : 
-                    {vendor_data}
-
-                    invoice data : 
-                    {invoice_str}
-
-                    Today's Date : 
-                    {date.today()}"""
+        history=[
+            History(
+                role="user",
+                content=Content(
+                    text="Please extract the invoice type. While extracting information, You must not make up any information by yourself. If you think that, given details are missing, you could mention false for any extracting parameter.",
+                    image_data=[ImageData(url=img) for img in url_to_pil_image(input_data.invoice_url)]
                 )
-            )
-        )],
-        function_call_list=[copy.deepcopy(input_data.conditions)]
-    )
+            )],
+            function_call_list=[copy.deepcopy(invoice_type_schema)]
+        )
+        invoice_identification_response, invoice_identify_cost = llm_list[input_data.llm].generate_response(llm_input)
 
-    condition_response, condition_check_cost = llm_list[input_data.llm].generate_response(condition_check_input)
+        check_invoice = False
+        if(invoice_identification_response["is_digital_invoice"] == True and input_data.check_invoice_type.digital == True):
+            check_invoice = True
+        if(invoice_identification_response["is_handwritten_invoice"] == True and input_data.check_invoice_type.handwritten_invoice == True):
+            check_invoice = True
+        
+        if(check_invoice == False):
+            raise Exception("Given document is not Invoice or Invoice is not according to defined category.")
 
-    final_invoice_result = True
-    for key, value in condition_response.items():
-        if(type(value) == bool):
-            if(value == False):
-                final_invoice_result = False
-                break
+        invoice_extraction_input = LLMInput(
+            llm = input_data.llm,
+            llm_model=input_data.llm_model,
+            history=[History(
+                role="user",
+                content=Content(
+                    text="Please extract invoice details from given data. While extracting information, if invoice language is not in English, you must make sure that  you translate the details in English.  While extracting information, You must not make up any information by yourself. If you think that, given details are missing, you could mention None for any extracting parameter.",
+                    image_data=[ImageData(url=img) for img in url_to_pil_image(input_data.invoice_url)]
+                )
+            )],
+            function_call_list=[copy.deepcopy(invoice_extraction_schema)]
+        )
+        invoice_extraction_response, invoice_extraction_cost = llm_list[input_data.llm].generate_response(invoice_extraction_input)
+        
+        invoice_extraction_cost.token_cost = sum_token_cost(invoice_identify_cost.token_cost, invoice_extraction_cost.token_cost)
 
-    final_cost = sum_token_cost(condition_check_cost.token_cost, invoice_extraction_cost.token_cost)
+        invoice_str = json.dumps(invoice_extraction_response, indent=2)
 
-    output = TaskResponse(
-        output=condition_response,
-        token_cost = final_cost,
-        time_required=time.time()-st,
-        invoice_url=input_data.invoice_url,
-        extracted_invoice_data=invoice_extraction_response,
-        final_invoice_result=final_invoice_result
-    )
+        po_data = json.dumps(invoice_db.get_po(invoice_extraction_response["po_number"]), indent=2)
 
-    return JSONResponse(output.model_dump())
+        vendor_data = json.dumps(invoice_db.get_vendor(invoice_extraction_response["customer_details"]["tax_registration_number"]), indent=2)
+        
+        added_params = []
+        BASE_CONDITION_CHECK_SCHEMA_COPY = copy.deepcopy(BASE_CONDITION_CHECK_SCHEMA)
+        for i in range(0, len(input_data.conditions)):
+            BASE_CONDITION_CHECK_SCHEMA_COPY["function"]["parameters"]["properties"][f"condition_{i}"] = {
+                "type": "boolean",
+                "description": input_data.conditions[i]
+            }
+            BASE_CONDITION_CHECK_SCHEMA_COPY["function"]["parameters"]["properties"][f"reason_{i}"] = {
+                "type": "string",
+                "description": "Reason for the condition_1 result."
+            }
+            added_params.append(f"condition_{i}")
+            added_params.append(f"reason_{i}")
 
+        BASE_CONDITION_CHECK_SCHEMA_COPY["function"]["parameters"]["required"] = added_params
+
+        condition_check_input = LLMInput(
+            llm = input_data.llm,
+            llm_model=input_data.llm_model,
+            history=[History(
+                role="user",
+                content=Content(
+                    text = dedent(
+                        f"""Based on given PO data, vendor data and Invoice data, you must verify the conditions. If PO data and Vendor data are empty JSON or null, provide false for any comparision associated with vendor data and PO data. You must not assume any data by yourself. 
+                        PO data : 
+                        {po_data}
+
+                        vendor data : 
+                        {vendor_data}
+
+                        invoice data : 
+                        {invoice_str}
+
+                        Today's Date : 
+                        {date.today()}"""
+                    )
+                )
+            )],
+            function_call_list=[copy.deepcopy(BASE_CONDITION_CHECK_SCHEMA_COPY)]
+        )
+
+        condition_response, condition_check_cost = llm_list[input_data.llm].generate_response(condition_check_input)
+
+        final_invoice_result = True
+        for key, value in condition_response.items():
+            if(type(value) == bool):
+                if(value == False):
+                    final_invoice_result = False
+                    break
+
+        final_cost = sum_token_cost(condition_check_cost.token_cost, invoice_extraction_cost.token_cost)
+
+        output = TaskResponse(
+            output=condition_response,
+            token_cost = final_cost,
+            time_required=time.time()-st,
+            extracted_invoice_data=invoice_extraction_response,
+            final_invoice_result=final_invoice_result,
+            provided_conditions=input_data.conditions
+        )
+
+        return JSONResponse(output.model_dump())
+    except Exception as error:
+        output = TaskResponse(error=str(error.args))
+        return JSONResponse(output.model_dump(), status_code=500)
 
 
 if __name__ == "__main__":
