@@ -15,9 +15,19 @@ from src.utils.Globals import url_to_pil_image, sum_token_cost
 from src.DB.MongoClient import InvoiceDataDB
 from textwrap import dedent
 from datetime import date
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],  
+    allow_headers=["*"],  
+)
+
 
 llm_models = LLMModels()
 
