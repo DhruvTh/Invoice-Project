@@ -154,13 +154,21 @@ def extract_data(input_data: LLMAPIInput):
             final_invoice_result=final_invoice_result,
             provided_conditions=input_data.conditions
         )
-
+        invoice_db.add_invoice(output.model_dump())
         return JSONResponse(output.model_dump())
     except Exception as error:
         output = TaskResponse(error=str(error.args))
         return JSONResponse(output.model_dump(), status_code=500)
 
 
+@app.get("/dashboard_data")
+def extract_data():
+    try:
+        return invoice_db.get_dashboard_data()
+    except Exception as error:
+        output = TaskResponse(error=str(error.args))
+        return JSONResponse(output.model_dump(), status_code=500)
+    
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",

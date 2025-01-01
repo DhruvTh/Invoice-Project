@@ -42,3 +42,19 @@ class InvoiceDataDB:
         po_collection = self.db[self.po_collection]
         return po_collection.find_one({"po_number" : po_number}, {"_id": 0})
  
+    def add_invoice(self, invoice_data : dict) -> None:
+        invoice_collection = self.db[self.invoice_collection]
+        invoice_collection.insert_one(invoice_data)
+
+    def get_dashboard_data(self) -> dict:
+        invoice_collection = self.db[self.invoice_collection]
+        total_documents = invoice_collection.count_documents({})
+        rejected_documents = invoice_collection.count_documents({"final_invoice_result" : False})
+        accepted_documents = invoice_collection.count_documents({"final_invoice_result" : True})
+
+        return {
+            "total_documents" : total_documents,
+            "rejected_documents" : rejected_documents,
+            "accepted_documents" : accepted_documents,
+            "review_documents" : 0
+        }

@@ -7,7 +7,6 @@ from src.utils.Schemas import TokenCalculation
 import base64
 
 def url_to_pil_image(url:str):
-    print(url)
     url = url.split("data:application/pdf;base64,")[1]
     pdf_bytes = base64.b64decode(url)
 
