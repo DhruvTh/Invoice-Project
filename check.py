@@ -11,7 +11,7 @@ response = requests.post(
     json = {
         "llm": "ClaudeAI",
         "llm_model": "claude-3-5-sonnet-20240620",
-        "invoice_url": pdf_base64,
+        "invoice_url": f"data:application/pdf;base64,{pdf_base64}",
         "conditions": [
             "True if the invoice is raised between 2023 and 2024, otherwise false.",
             "True if the invoice currency is AED, otherwise false.",

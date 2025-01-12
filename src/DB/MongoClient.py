@@ -46,6 +46,10 @@ class InvoiceDataDB:
         invoice_collection = self.db[self.invoice_collection]
         invoice_collection.insert_one(invoice_data)
 
+    def add_po(self, po_data : dict) -> None:
+        invoice_collection = self.db[self.po_collection]
+        invoice_collection.insert_one(po_data)
+
     def get_dashboard_data(self) -> dict:
         invoice_collection = self.db[self.invoice_collection]
         total_documents = invoice_collection.count_documents({})

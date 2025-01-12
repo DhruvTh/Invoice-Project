@@ -59,6 +59,7 @@ class TaskResponse(BaseModel):
     extracted_invoice_data : Optional[dict] = None
     provided_conditions : Optional[list[str]] = None
     error : Optional[str] = None
+    doc_type : Literal["PO", "INVOICE"] = "INVOICE"
 
 
 

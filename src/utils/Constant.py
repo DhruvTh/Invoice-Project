@@ -133,57 +133,158 @@ llm_model_list = {
 invoice_extraction_schema = {
   "type": "function",
   "function": {
-  "name": "extract_invoice_data",
-  "description": "Extracts detailed information from an invoice. While extracting information, if it is not in english, you must make sure that  you translate the details in english.",
-  "parameters": {
-    "type": "object",
-    "properties": {
-      "invoice_number": {
-        "type": "string",
-        "description": "The unique invoice number or ID of the invoice. It might be given on the top and provide complete invoice ID. If given details is not in English, please translate the details while extracting "
-      },
-      "invoice_date": {
-        "type": "string",
-        "description": "The date when the invoice was issued, in YYYY-MM-DD format. If given details is not in English, please translate the details while extracting "
-      },
-      "po_number": {
+    "name": "extract_invoice_data",
+    "description": "Extracts detailed information from an invoice. While extracting information, if it is not in English, you must make sure that you translate the details into English.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "invoice_number": {
+          "type": "string",
+          "description": "The unique invoice number or ID of the invoice. It might be given on the top and provide complete invoice ID. If given details are not in English, please translate the details while extracting."
+        },
+        "invoice_date": {
+          "type": "string",
+          "description": "The date when the invoice was issued, in YYYY-MM-DD format. If given details are not in English, please translate the details while extracting."
+        },
+        "due_date": {
+          "type": "string",
+          "description": "The due date for payment of the invoice, in YYYY-MM-DD format. If given details are not in English, please translate the details while extracting."
+        },
+        "po_number": {
           "type": "string",
           "description": "The unique purchase order number. If given details are not in English, please translate the details while extracting."
-      },
-      "customer_details": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Full name of the customer or company. If given details is not in English, please translate the details while extracting "
-          },
-          "address": {
-            "type": "string",
-            "description": "Complete address of the customer. If given details is not in English, please translate the details while extracting "
-          },
-          "tax_registration_number": {
-            "type": "string",
-            "description": "Tax registration number of the customer. If given details is not in English, please translate the details while extracting "
-          }
         },
-        "required": ["name", "address", "tax_registration_number"]
+        "customer_details": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Full name of the customer or company. If given details are not in English, please translate the details while extracting."
+            },
+            "address": {
+              "type": "string",
+              "description": "Complete address of the customer. If given details are not in English, please translate the details while extracting."
+            },
+            "tax_registration_number": {
+              "type": "string",
+              "description": "Tax registration number of the customer. If given details are not in English, please translate the details while extracting."
+            }
+          },
+          "required": ["name", "address", "tax_registration_number"]
+        },
+        "vendor_details": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Full name of the vendor or company. If given details are not in English, please translate the details while extracting."
+            },
+            "address": {
+              "type": "string",
+              "description": "Complete address of the vendor. If given details are not in English, please translate the details while extracting."
+            },
+            "tax_registration_number": {
+              "type": "string",
+              "description": "Tax registration number of the vendor. If given details are not in English, please translate the details while extracting."
+            }
+          },
+          "required": ["name", "address", "tax_registration_number"]
+        },
+        "grand_total": {
+          "type": "number",
+          "description": "The grand total amount of the invoice. If given details are not in English, please translate the details while extracting."
+        },
+        "currency": {
+          "type": "string",
+          "description": "Provide the country code for currency used in this Invoice. If given details are not in English, please translate the details while extracting."
+        },
+        "tax_percentage": {
+          "type": "string",
+          "description": "Provide the percentage of tax applied over base amount. Value could be 5%, 10%, 18%, or any other percentage number. If given details are not in English, please translate the details while extracting."
+        }
       },
-      "grand_total": {
-        "type": "number",
-        "description": "The grand total amount of the invoice. If given details is not in English, please translate the details while extracting "
-      },
-      "currency": {
-        "type": "string",
-        "description": "Provide the country code for currency used in this Invoice. If given details is not in English, please translate the details while extracting "
-      },
-      "tax_percentage": {
-        "type": "string",
-        "description": "Provide the percentage of tax applied over base amount. Value could be 5%, 10%, 18%, or any other percentage number. If given details is not in English, please translate the details while extracting "
-      }
-    },
-    "required": ["invoice_number", "invoice_date", "po_number", "customer_details", "grand_total", "tax_percentage", "currency"]
+      "required": ["invoice_number", "invoice_date", "due_date", "po_number", "customer_details", "vendor_details", "grand_total", "tax_percentage", "currency"]
+    }
   }
 }
+
+
+po_extraction_schema = {
+  "type": "function",
+  "function": {
+    "name": "extract_po_data",
+    "description": "Extracts detailed information from a Purchase Order. While extracting information, if it is not in English, you must make sure that you translate the details into English.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "po_number": {
+          "type": "string",
+          "description": "The unique Purchase Order number or ID. It might be given on the top and provide complete PO ID. If given details are not in English, please translate the details while extracting."
+        },
+        "po_date": {
+          "type": "string",
+          "description": "The date when the Purchase Order was issued, in YYYY-MM-DD format. If given details are not in English, please translate the details while extracting."
+        },
+        "due_date": {
+          "type": "string",
+          "description": "The due date for fulfillment of the Purchase Order, in YYYY-MM-DD format. If given details are not in English, please translate the details while extracting."
+        },
+        "related_invoice_number": {
+          "type": "string",
+          "description": "The unique invoice number related to this Purchase Order. If given details are not in English, please translate the details while extracting."
+        },
+        "customer_details": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Full name of the customer or company. If given details are not in English, please translate the details while extracting."
+            },
+            "address": {
+              "type": "string",
+              "description": "Complete address of the customer. If given details are not in English, please translate the details while extracting."
+            },
+            "tax_registration_number": {
+              "type": "string",
+              "description": "Tax registration number of the customer. If given details are not in English, please translate the details while extracting."
+            }
+          },
+          "required": ["name", "address", "tax_registration_number"]
+        },
+        "vendor_details": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Full name of the vendor or company. If given details are not in English, please translate the details while extracting."
+            },
+            "address": {
+              "type": "string",
+              "description": "Complete address of the vendor. If given details are not in English, please translate the details while extracting."
+            },
+            "tax_registration_number": {
+              "type": "string",
+              "description": "Tax registration number of the vendor. If given details are not in English, please translate the details while extracting."
+            }
+          },
+          "required": ["name", "address", "tax_registration_number"]
+        },
+        "grand_total": {
+          "type": "number",
+          "description": "The grand total amount of the Purchase Order. If given details are not in English, please translate the details while extracting."
+        },
+        "currency": {
+          "type": "string",
+          "description": "Provide the country code for currency used in this Purchase Order. If given details are not in English, please translate the details while extracting."
+        },
+        "tax_percentage": {
+          "type": "string",
+          "description": "Provide the percentage of tax applied over base amount. Value could be 5%, 10%, 18%, or any other percentage number. If given details are not in English, please translate the details while extracting."
+        }
+      },
+      "required": ["po_number", "po_date", "due_date", "related_invoice_number", "customer_details", "vendor_details", "grand_total", "tax_percentage", "currency"]
+    }
+  }
 }
 
 invoice_type_schema = {
@@ -208,6 +309,29 @@ invoice_type_schema = {
   }
 }
 
+
+
+doc_type_schema = {
+  "type": "function",
+  "function": {
+    "name": "identify_document_type",
+    "description": "Identify the type of document and return true or false for each type. If the given document is neither a Purchase Order nor an Invoice, return false for both cases.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "is_purchase_order": {
+          "type": "boolean",
+          "description": "True if the document is a Purchase Order, otherwise false."
+        },
+        "is_invoice": {
+          "type": "boolean",
+          "description": "True if the document is an Invoice, otherwise false."
+        }
+      },
+      "required": ["is_purchase_order", "is_invoice"]
+    }
+  }
+}
 
 BASE_CONDITION_CHECK_SCHEMA = {
   "type": "function",
